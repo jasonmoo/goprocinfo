@@ -38,21 +38,23 @@ type (
 
 func createCPUStat(fields []string) *CPUStat {
 
+	for i := 0; i < 12-len(fields); i++ {
+		fields = append(fields, "")
+	}
+
 	s := &CPUStat{}
 
-	if len(fields) == 10 {
-		s.Id = fields[0]
-		s.User, _ = strconv.ParseUint(fields[1], 10, 64)
-		s.Nice, _ = strconv.ParseUint(fields[2], 10, 64)
-		s.System, _ = strconv.ParseUint(fields[3], 10, 64)
-		s.Idle, _ = strconv.ParseUint(fields[4], 10, 64)
-		s.IOWait, _ = strconv.ParseUint(fields[5], 10, 64)
-		s.IRQ, _ = strconv.ParseUint(fields[6], 10, 64)
-		s.SoftIRQ, _ = strconv.ParseUint(fields[7], 10, 64)
-		s.Steal, _ = strconv.ParseUint(fields[8], 10, 64)
-		s.Guest, _ = strconv.ParseUint(fields[9], 10, 64)
-		s.GuestNice, _ = strconv.ParseUint(fields[10], 10, 64)
-	}
+	s.Id = fields[0]
+	s.User, _ = strconv.ParseUint(fields[1], 10, 64)
+	s.Nice, _ = strconv.ParseUint(fields[2], 10, 64)
+	s.System, _ = strconv.ParseUint(fields[3], 10, 64)
+	s.Idle, _ = strconv.ParseUint(fields[4], 10, 64)
+	s.IOWait, _ = strconv.ParseUint(fields[5], 10, 64)
+	s.IRQ, _ = strconv.ParseUint(fields[6], 10, 64)
+	s.SoftIRQ, _ = strconv.ParseUint(fields[7], 10, 64)
+	s.Steal, _ = strconv.ParseUint(fields[8], 10, 64)
+	s.Guest, _ = strconv.ParseUint(fields[9], 10, 64)
+	s.GuestNice, _ = strconv.ParseUint(fields[10], 10, 64)
 
 	return s
 
