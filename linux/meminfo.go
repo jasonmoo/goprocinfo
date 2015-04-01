@@ -80,20 +80,18 @@ func ReadMemInfoFromBytes(data []byte) (*MemInfo, error) {
 			value *= 1024
 		}
 
-		val := reflect.ValueOf(value)
-
 		switch name {
 		case "Active(anon)":
-			v.FieldByName("ActiveAnon").Set(val)
+			v.FieldByName("ActiveAnon").SetUint(value)
 		case "Inactive(anon)":
-			v.FieldByName("InactiveAnon").Set(val)
+			v.FieldByName("InactiveAnon").SetUint(value)
 		case "Active(file)":
-			v.FieldByName("ActiveFile").Set(val)
+			v.FieldByName("ActiveFile").SetUint(value)
 		case "Inactive(file)":
-			v.FieldByName("InactiveFile").Set(val)
+			v.FieldByName("InactiveFile").SetUint(value)
 		default:
 			if f := v.FieldByName(fields[0]); f.CanSet() {
-				f.Set(val)
+				f.SetUint(value)
 			}
 		}
 
