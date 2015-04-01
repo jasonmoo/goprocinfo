@@ -1,6 +1,7 @@
 package linux
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -8,16 +9,16 @@ import (
 )
 
 type Uptime struct {
-	Total float64 `json:"total"`
-	Idle  float64 `json:"idle"`
+	Total time.Duration `json:"total"`
+	Idle  time.Duration `json:"idle"`
 }
 
 func (self *Uptime) GetTotalDuration() time.Duration {
-	return time.Duration(self.Total) * time.Second
+	return self.Total
 }
 
 func (self *Uptime) GetIdleDuration() time.Duration {
-	return time.Duration(self.Idle) * time.Second
+	return self.Idle
 }
 
 func (self *Uptime) CalculateIdle() float64 {
@@ -26,18 +27,31 @@ func (self *Uptime) CalculateIdle() float64 {
 	return 0
 }
 
+func ReadUptimeFromBytes(data []byte) (*Uptime, error) {
+
+	fields := strings.Fields(string(data))
+
+	if len(fields) != 2 {
+		return nil, fmt.Errorf("Expected 2 fields, got %d", len(fields))
+	}
+
+	total, _ := strconv.ParseFloat(fields[0], 64)
+	idle, _ := strconv.ParseFloat(fields[1], 64)
+
+	return &Uptime{
+		Total: time.Duration(total) * time.Second,
+		Idle:  time.Duration(idle) * time.Second,
+	}, nil
+
+}
+
 func ReadUptime(path string) (*Uptime, error) {
-	b, err := ioutil.ReadFile(path)
+
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	fields := strings.Fields(string(b))
-	uptime := Uptime{}
-	if uptime.Total, err = strconv.ParseFloat(fields[0], 64); err != nil {
-		return nil, err
-	}
-	if uptime.Idle, err = strconv.ParseFloat(fields[1], 64); err != nil {
-		return nil, err
-	}
-	return &uptime, nil
+
+	return ReadUptimeFromBytes(data)
+
 }
