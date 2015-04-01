@@ -8,20 +8,22 @@ import (
 	"time"
 )
 
-type Uptime struct {
-	Total time.Duration `json:"total"`
-	Idle  time.Duration `json:"idle"`
+type (
+	Uptime struct {
+		Total time.Duration `json:"total"`
+		Idle  time.Duration `json:"idle"`
+	}
+)
+
+func (u *Uptime) GetTotalDuration() time.Duration {
+	return u.Total
 }
 
-func (self *Uptime) GetTotalDuration() time.Duration {
-	return self.Total
+func (u *Uptime) GetIdleDuration() time.Duration {
+	return u.Idle
 }
 
-func (self *Uptime) GetIdleDuration() time.Duration {
-	return self.Idle
-}
-
-func (self *Uptime) CalculateIdle() float64 {
+func (u *Uptime) CalculateIdle() float64 {
 	// XXX
 	// num2/(num1*N)     # N = SMP CPU numbers
 	return 0
