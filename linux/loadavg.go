@@ -1,10 +1,9 @@
 package linux
 
 import (
-	"errors"
+	"bytes"
+	"fmt"
 	"io/ioutil"
-	"strconv"
-	"strings"
 )
 
 type LoadAvg struct {
@@ -16,52 +15,32 @@ type LoadAvg struct {
 	LastPID        uint64  `json:"last_pid"`
 }
 
-func ReadLoadAvg(path string) (*LoadAvg, error) {
-
-	b, err := ioutil.ReadFile(path)
-
-	if err != nil {
-		return nil, err
-	}
-
-	content := strings.TrimSpace(string(b))
-	fields := strings.Fields(content)
-
-	if len(fields) < 5 {
-		return nil, errors.New("Cannot parse loadavg: " + content)
-	}
-
-	process := strings.Split(fields[3], "/")
-
-	if len(process) != 2 {
-		return nil, errors.New("Cannot parse loadavg: " + content)
-	}
+func ReadLoadAvgFromBytes(data []byte) (*LoadAvg, error) {
 
 	loadavg := LoadAvg{}
 
-	if loadavg.Last1Min, err = strconv.ParseFloat(fields[0], 64); err != nil {
-		return nil, err
-	}
-
-	if loadavg.Last5Min, err = strconv.ParseFloat(fields[1], 64); err != nil {
-		return nil, err
-	}
-
-	if loadavg.Last15Min, err = strconv.ParseFloat(fields[2], 64); err != nil {
-		return nil, err
-	}
-
-	if loadavg.ProcessRunning, err = strconv.ParseUint(process[0], 10, 64); err != nil {
-		return nil, err
-	}
-
-	if loadavg.ProcessTotal, err = strconv.ParseUint(process[1], 10, 64); err != nil {
-		return nil, err
-	}
-
-	if loadavg.LastPID, err = strconv.ParseUint(fields[4], 10, 64); err != nil {
+	if _, err := fmt.Fscan(
+		bytes.NewReader(data),
+		&loadavg.Last1Min,
+		&loadavg.Last5Min,
+		&loadavg.Last15Min,
+		&loadavg.ProcessRunning,
+		&loadavg.ProcessTotal,
+		&loadavg.LastPID,
+	); err != nil {
 		return nil, err
 	}
 
 	return &loadavg, nil
+}
+
+func ReadLoadAvg(path string) (*LoadAvg, error) {
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return ReadLoadAvgFromBytes(data)
+
 }
